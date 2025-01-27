@@ -1,0 +1,57 @@
+
+> antigraity-inmobiliaria@0.0.1 build
+> astro build
+
+11:38:55 [@astrojs/netlify] Enabling sessions with Netlify Blobs
+11:38:55 [vite] Forced re-optimization of dependencies
+11:38:56 [content] Syncing content
+11:38:56 [content] Synced content
+11:38:56 [types] Generated 715ms
+11:38:56 [build] output: "server"
+11:38:56 [build] mode: "server"
+11:38:56 [build] directory: /home/bigin/ANTIGRAITY PROYECTOS/dist/
+11:38:56 [build] adapter: @astrojs/netlify
+11:38:56 [build] Collecting build info...
+11:38:56 [build] ✓ Completed in 860ms.
+11:38:56 [build] Building server entrypoints...
+11:39:02 [vite] ✓ built in 6.29s
+11:39:02 [build] ✓ Completed in 6.42s.
+
+ building client (vite) 
+11:39:02 [vite] transforming...
+11:39:04 [vite] ✓ 135 modules transformed.
+11:39:04 [vite] rendering chunks...
+11:39:05 [vite] computing gzip size...
+11:39:05 [vite] dist/_astro/legacy.Bh0CzPzo.js             0.05 kB │ gzip:  0.07 kB
+11:39:05 [vite] dist/_astro/disclose-version.DsnmJJEf.js   0.07 kB │ gzip:  0.08 kB
+11:39:05 [vite] dist/_astro/index-client.fS9izGoa.js       0.33 kB │ gzip:  0.26 kB
+11:39:05 [vite] dist/_astro/lifecycle.DZ8RIRQk.js          0.53 kB │ gzip:  0.34 kB
+11:39:05 [vite] dist/_astro/SoftSnap.C4OGeYRH.js           0.71 kB │ gzip:  0.45 kB
+11:39:05 [vite] dist/_astro/props.Cbw0ge1D.js              0.99 kB │ gzip:  0.59 kB
+11:39:05 [vite] dist/_astro/attributes.DhIFGAhS.js         1.06 kB │ gzip:  0.60 kB
+11:39:05 [vite] dist/_astro/client.svelte.BfWjd9eX.js      1.16 kB │ gzip:  0.64 kB
+11:39:05 [vite] dist/_astro/BackToTop.Cx5EGkGt.js          1.63 kB │ gzip:  0.94 kB
+11:39:05 [vite] dist/_astro/if.Dc_mi1pJ.js                 1.83 kB │ gzip:  0.83 kB
+11:39:05 [vite] dist/_astro/input.BEki5yUy.js              2.24 kB │ gzip:  1.04 kB
+11:39:05 [vite] dist/_astro/FeaturedSlider.B-mEvAQk.js     2.59 kB │ gzip:  1.22 kB
+11:39:05 [vite] dist/_astro/Navbar.i7l-CIzp.js             3.77 kB │ gzip:  1.59 kB
+11:39:05 [vite] dist/_astro/each.DcRJadxF.js               3.82 kB │ gzip:  1.80 kB
+11:39:05 [vite] dist/_astro/index.0lGWPL9p.js              3.99 kB │ gzip:  1.90 kB
+11:39:05 [vite] dist/_astro/PropertyCard.DGOemQHe.js       5.78 kB │ gzip:  2.42 kB
+11:39:05 [vite] dist/_astro/render.AqWn4Unk.js             7.47 kB │ gzip:  3.28 kB
+11:39:05 [vite] dist/_astro/SearchBox.D7iFfSB6.js         11.96 kB │ gzip:  3.93 kB
+11:39:05 [vite] dist/_astro/PropertyForm.D9apUBH6.js      21.24 kB │ gzip:  6.18 kB
+11:39:05 [vite] dist/_astro/runtime.C5LxlLfx.js           22.08 kB │ gzip:  8.81 kB
+11:39:05 [vite] dist/_astro/constants.CH0tGp0I.js         56.20 kB │ gzip: 13.35 kB
+11:39:05 [vite] ✓ built in 2.78s
+
+ prerendering static routes 
+11:39:05 ✓ Completed in 48ms.
+
+11:39:05 [build] Rearranging server assets...
+11:39:05 [@astrojs/netlify] Emitted _redirects
+11:39:05 [@astrojs/netlify] Bundling function ../../../build/entry.mjs
+11:39:08 [build] Waiting for integration "@astrojs/netlify", hook "astro:build:done"...
+11:39:09 [@astrojs/netlify] Generated SSR Function
+11:39:09 [build] Server built in 13.91s
+11:39:09 [build] Complete!

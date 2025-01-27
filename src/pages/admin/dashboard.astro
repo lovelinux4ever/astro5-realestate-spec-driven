@@ -1,0 +1,35 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import { supabase } from '../../lib/server/supabase';
+
+// Fetch stats
+const { count: totalProperties, error: propsError } = await supabase
+    .from('propiedades')
+    .select('*', { count: 'exact', head: true });
+
+const { count: publishedProperties } = await supabase
+    .from('propiedades')
+    .select('*', { count: 'exact', head: true })
+    .eq('publicado', true);
+
+// TODO: Connect "Consultas" when we have a contact form/table
+const consultas = 0; 
+---
+
+<AdminLayout title="Dashboard">
+    <h1 class="text-3xl font-bold text-gray-900 mb-8">Dashboard</h1>
+    
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="bg-white p-6 rounded-lg shadow">
+            <h3 class="text-lg font-medium text-gray-900">Total Propiedades</h3>
+            <p class="text-3xl font-bold text-indigo-600 mt-2">{totalProperties || 0}</p>
+            <p class="text-sm text-gray-500 mt-1">{publishedProperties || 0} publicadas</p>
+        </div>
+        <div class="bg-white p-6 rounded-lg shadow">
+            <h3 class="text-lg font-medium text-gray-900">Consultas Recientes</h3>
+            <p class="text-3xl font-bold text-indigo-600 mt-2">{consultas}</p>
+        </div>
+    </div>
+        </div>
+    </div>
+</AdminLayout>

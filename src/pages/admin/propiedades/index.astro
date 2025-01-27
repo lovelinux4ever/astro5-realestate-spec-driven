@@ -1,0 +1,74 @@
+---
+import AdminLayout from '../../../layouts/AdminLayout.astro';
+import { supabase } from '../../../lib/server/supabase';
+
+const { data: properties, error } = await supabase
+    .from('propiedades')
+    .select('id, titulo, precio, moneda, tipo_operacion, estado_propiedad, publicado, created_at')
+    .order('created_at', { ascending: false });
+
+if (error) {
+    console.error("Error loading properties for admin:", error);
+}
+---
+
+<AdminLayout title="Propiedades">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-2xl font-bold text-gray-900">Propiedades</h1>
+        <a href="/admin/propiedades/nueva" class="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700">
+            Nueva Propiedad
+        </a>
+    </div>
+
+    <!-- Filtros / Buscador (Todo) -->
+
+    <div class="bg-white shadow overflow-hidden sm:rounded-md">
+        {error && (
+            <div class="p-4 bg-red-50 text-red-700">
+                Error al cargar propiedades: {error.message}
+            </div>
+        )}
+        
+        <ul role="list" class="divide-y divide-gray-200">
+            {!properties || properties.length === 0 ? (
+                <li class="px-4 py-4 sm:px-6">
+                    <div class="text-center text-gray-500">No hay propiedades cargadas.</div>
+                </li>
+            ) : (
+                properties.map((prop) => (
+                    <li>
+                        <a href={`/admin/propiedades/${prop.id}`} class="block hover:bg-gray-50">
+                            <div class="px-4 py-4 sm:px-6">
+                                <div class="flex items-center justify-between">
+                                    <p class="text-sm font-medium text-indigo-600 truncate">
+                                        {prop.titulo}
+                                    </p>
+                                    <div class="ml-2 flex-shrink-0 flex">
+                                        <p class={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${prop.publicado ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>
+                                            {prop.publicado ? 'Publicado' : 'Borrador'}
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="mt-2 sm:flex sm:justify-between">
+                                    <div class="sm:flex">
+                                        <p class="flex items-center text-sm text-gray-500">
+                                            {prop.moneda} {prop.precio.toLocaleString()}
+                                        </p>
+                                        <p class="mt-2 flex items-center text-sm text-gray-500 sm:mt-0 sm:ml-6">
+                                            {prop.tipo_operacion} - {prop.estado_propiedad}
+                                        </p>
+                                    </div>
+                                    <div class="mt-2 flex items-center text-sm text-gray-500 sm:mt-0">
+                                        <p>
+                                            Creado el <time datetime={prop.created_at}>{new Date(prop.created_at).toLocaleDateString()}</time>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                    </li>
+                ))
+            )}
+        </ul>
+    </div>
+</AdminLayout>

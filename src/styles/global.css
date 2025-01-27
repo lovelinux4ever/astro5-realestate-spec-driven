@@ -1,0 +1,35 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+    --brand-color: #003B5C;
+    --gold-color: #D4AF37;
+    --sky-color: #00AEEF;
+}
+
+html {
+    /* Mantenemos el scroll suave nativo pero sin el snap automático brusco */
+    scroll-behavior: smooth;
+    height: 100%;
+}
+
+body {
+    background-color: #ffffff;
+    color: #111827;
+    margin: 0;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* Efecto de foco sutil para las secciones cuando se centran */
+.snap-section {
+    transition: opacity 0.8s ease;
+}
+
+/* Optimizaciones de rendimiento para animaciones */
+* {
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+}

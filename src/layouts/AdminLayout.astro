@@ -1,0 +1,32 @@
+---
+interface Props {
+	title: string;
+}
+
+const { title } = Astro.props;
+---
+
+<!doctype html>
+<html lang="es">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<meta name="generator" content={Astro.generator} />
+		<title>{title} - Admin Panel</title>
+	</head>
+	<body class="bg-gray-100 min-h-screen font-sans text-gray-900 flex">
+        <aside class="w-64 bg-indigo-900 text-white min-h-screen p-6 hidden md:block">
+            <h2 class="text-xl font-bold mb-8">Admin Panel</h2>
+            <nav class="space-y-4">
+                <a href="/admin/dashboard" class="block hover:text-indigo-300">Dashboard</a>
+                <a href="/admin/propiedades" class="block hover:text-indigo-300">Propiedades</a>
+                <a href="/" class="block hover:text-indigo-300 border-t border-indigo-700 pt-4">Volver al Sitio</a>
+            </nav>
+        </aside>
+
+        <main class="flex-1 p-8">
+    		<slot />
+        </main>
+	</body>
+</html>

@@ -1,0 +1,63 @@
+---
+// src/pages/index.astro
+import Layout from '../layouts/MainLayout.astro';
+import SearchBox from '../components/islands/SearchBox.svelte';
+import FeaturedSlider from '../components/islands/FeaturedSlider.svelte';
+import CategoryGrid from '../components/CategoryGrid.astro';
+import TasacionesSection from '../components/TasacionesSection.astro';
+import { supabase } from '../lib/server/supabase';
+import { InmuebleDTOSchema } from '../schemas/inmuebles';
+import '../styles/global.css';
+
+// 1. Fetch de datos para el Slider (SOLO las marcadas como Destacadas)
+const { data: rawFeatured, error: dbError } = await supabase
+    .from('propiedades')
+    .select('*')
+    .eq('publicado', true)
+    .order('destacado', { ascending: false }) // Primero las destacadas
+    .order('created_at', { ascending: false }) // Luego las más nuevas
+    .limit(10);
+
+const featuredProperties = (rawFeatured || [])
+    .map(prop => {
+        const result = InmuebleDTOSchema.safeParse(prop);
+        return result.success ? result.data : null;
+    })
+    .filter(p => p !== null);
+---
+
+<Layout title="Proyecto Inmobiliaria S.L. - Mar del Plata">
+    <main>
+        <!-- 1. Buscador Hero -->
+        <section class="snap-section relative bg-[#003B5C] py-20 md:py-32 overflow-hidden">
+            <div class="absolute inset-0 z-0 opacity-20">
+                <img 
+                    src="https://images.unsplash.com/photo-1449844908441-8829872d2607?auto=format&fit=crop&q=80&w=1470" 
+                    alt="Mar del Plata real estate"
+                    class="w-full h-full object-cover"
+                />
+            </div>
+            <div class="max-w-7xl mx-auto px-4 relative z-10 text-center">
+                <h2 class="text-4xl md:text-5xl font-extrabold text-white mb-8 tracking-tight">
+                    Tu futuro hogar en Mar del Plata
+                </h2>
+                <div class="max-w-4xl mx-auto">
+                    <SearchBox client:load />
+                </div>
+            </div>
+        </section>
+
+        <!-- 2. Propiedades Destacadas (Slider) -->
+        <section class="snap-section py-20 bg-white">
+            <div class="max-w-7xl mx-auto">
+                <FeaturedSlider properties={featuredProperties} client:visible />
+            </div>
+        </section>
+
+        <!-- 3. Categorías -->
+        <CategoryGrid />
+
+        <!-- 4. Tasaciones -->
+        <TasacionesSection />
+    </main>
+</Layout>

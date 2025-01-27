@@ -1,0 +1,188 @@
+---
+import MainLayout from '../layouts/MainLayout.astro';
+import SearchBox from '../components/islands/SearchBox.svelte';
+import PropertyCard from '../components/islands/PropertyCard.svelte';
+import { supabase } from '../lib/server/supabase';
+import { InmuebleDTOSchema } from '../schemas/inmuebles';
+
+const query = Astro.url.searchParams.get('q') || '';
+const operation = Astro.url.searchParams.get('operacion') || '';
+const category = Astro.url.searchParams.get('categoria') || '';
+const zone = Astro.url.searchParams.get('barrio') || '';
+const status = Astro.url.searchParams.get('estado') || '';
+const minPrice = Astro.url.searchParams.get('min') || '';
+const maxPrice = Astro.url.searchParams.get('max') || '';
+const currency = Astro.url.searchParams.get('moneda') || 'USD';
+
+let properties = [];
+let errorMsg = '';
+
+let supabaseQuery = supabase
+    .from('propiedades')
+    .select('*')
+    .eq('publicado', true);
+
+// Aplicar filtros dinámicos
+if (operation) {
+    supabaseQuery = supabaseQuery.eq('tipo_operacion', operation);
+}
+
+if (category) {
+    supabaseQuery = supabaseQuery.eq('tipo_propiedad', category);
+}
+
+if (status) {
+    supabaseQuery = supabaseQuery.eq('estado_propiedad', status);
+}
+
+if (zone) {
+    supabaseQuery = supabaseQuery.eq('barrio', zone);
+}
+
+// Aplicar filtros de precio con lógica de "Reservado" (siempre incluir si precio_oculto es true)
+if (minPrice || maxPrice) {
+    const min = minPrice || 0;
+    const max = maxPrice || 999999999;
+    
+    // Usamos una consulta OR persistente: (Rango de precio) O (Precio Oculto)
+    supabaseQuery = supabaseQuery.or(`and(precio.gte.${min},precio.lte.${max}),precio_oculto.eq.true`);
+}
+
+if (currency) {
+    supabaseQuery = supabaseQuery.eq('moneda', currency);
+}
+
+if (query) {
+    // 🧠 BUSCADOR SEMÁNTICO V4 (Lógica de Amplio Espectro - OR)
+    const lowerQuery = query.toLowerCase();
+    
+    // 1. La Categoría es la única excepción (Filtro AND)
+    const categoriasMap: Record<string, string> = {
+        'casa': 'Casas / Chalets',
+        'chalet': 'Casas / Chalets',
+        'dpto': 'Departamentos',
+        'departamento': 'Departamentos',
+        'ph': 'PH / Duplex',
+        'duplex': 'PH / Duplex',
+        'lote': 'Lotes / Campos',
+        'local': 'Locales y Oficinas',
+        'oficina': 'Locales y Oficinas'
+    };
+
+    for (const [key, value] of Object.entries(categoriasMap)) {
+        if (new RegExp(`\\b${key}\\b`, 'i').test(lowerQuery)) {
+            supabaseQuery = supabaseQuery.eq('tipo_propiedad', value);
+            break; 
+        }
+    }
+
+    // 2. Todo lo demás se une en un gran OR
+    // Preparamos las condiciones. Supabase .or() usa una sintaxis: "col.op.val,col.op.val"
+    const cleanQuery = query.replace(/[,()]/g, ''); // Limpiar caracteres que rompen el .or()
+    const orConditions = [
+        `titulo.ilike.%${cleanQuery}%`,
+        `descripcion.ilike.%${cleanQuery}%`,
+        `barrio.ilike.%${cleanQuery}%`
+    ];
+
+    // -- Intentos Numéricos dentro del OR --
+    
+    // Dormitorios
+    const habMatch = lowerQuery.match(/(\d+)\s*(hab|dorm|habitaci|dormito)/i);
+    if (habMatch) {
+         orConditions.push(`caracteristicas->dormitorios.gte.${habMatch[1]}`);
+    } else if (/\b(hab|dorm|habitaci|dormito)\b/i.test(lowerQuery)) {
+         orConditions.push(`caracteristicas->dormitorios.gte.1`);
+    }
+
+    // Baños
+    const banMatch = lowerQuery.match(/(\d+)\s*(bañ|ban|baño)/i);
+    if (banMatch) {
+        orConditions.push(`caracteristicas->banios.gte.${banMatch[1]}`);
+    }
+
+    // Cocheras
+    const cochMatch = lowerQuery.match(/(\d+)\s*(cochera|garage|estacionamiento)/i);
+    if (cochMatch) {
+        orConditions.push(`caracteristicas->cocheras.gte.${cochMatch[1]}`);
+    } else if (/\b(cochera|garage|estacionamiento)\b/i.test(lowerQuery)) {
+        orConditions.push(`caracteristicas->cocheras.gte.1`);
+        orConditions.push(`caracteristicas->cochera.eq.true`);
+    }
+
+    // -- Amenities Booleans (Tags) --
+    if (lowerQuery.match(/\b(pileta|piscina)\b/i)) {
+        orConditions.push(`caracteristicas->pileta.eq.true`);
+    }
+    if (lowerQuery.match(/\b(parrilla|asador)\b/i)) {
+        orConditions.push(`caracteristicas->parrilla.eq.true`);
+    }
+    if (lowerQuery.match(/\b(aire|acondicionado)\b/i)) {
+        orConditions.push(`caracteristicas->aire_acondicionado.eq.true`);
+    }
+    if (lowerQuery.match(/\b(quincho)\b/i)) {
+        orConditions.push(`caracteristicas->quincho.eq.true`);
+    }
+    if (lowerQuery.match(/\b(gimnasio|gym)\b/i)) {
+        orConditions.push(`caracteristicas->gimnasio.eq.true`);
+    }
+    if (lowerQuery.match(/\b(sum|salon)\b/i)) {
+        orConditions.push(`caracteristicas->sum.eq.true`);
+    }
+    if (lowerQuery.match(/\b(patio|jardin)\b/i)) {
+        orConditions.push(`caracteristicas->patio.eq.true`);
+    }
+
+    // Aplicamos el GRAN OR
+    supabaseQuery = supabaseQuery.or(orConditions.join(','));
+}
+
+supabaseQuery = supabaseQuery.order('created_at', { ascending: false });
+
+const { data, error } = await supabaseQuery;
+
+if (error) {
+    errorMsg = error.message;
+} else {
+    properties = (data || [])
+        .map(prop => {
+            const result = InmuebleDTOSchema.safeParse(prop);
+            return result.success ? result.data : null;
+        })
+        .filter(Boolean);
+}
+
+const hasFilters = query || operation || category || zone || minPrice || maxPrice || status;
+---
+
+<MainLayout title={`Buscar Propiedades - Proyecto Inmobiliaria S.L.`}>
+    <div class="max-w-7xl mx-auto px-4 py-12">
+        <h1 class="text-3xl font-extrabold text-[#003B5C] mb-8">
+            {hasFilters ? 'Resultados de Búsqueda' : 'Catálogo de Propiedades'}
+        </h1>
+        
+        <div class="mb-16 bg-gray-50 p-6 rounded-xl border border-gray-100 shadow-sm">
+            <SearchBox client:load />
+        </div>
+
+        {errorMsg && (
+            <div class="p-4 bg-red-50 text-red-700 rounded-md mb-8">Error: {errorMsg}</div>
+        )}
+
+        {properties.length === 0 ? (
+            <div class="text-center py-20">
+                <div class="text-6xl mb-4">🔍</div>
+                <h3 class="text-xl font-bold text-gray-900 mb-2">No encontramos resultados</h3>
+                <p class="text-gray-500">Intenta ajustar los filtros de búsqueda.</p>
+            </div>
+        ) : (
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                {properties.map((prop) => (
+                    <div class="h-full">
+                        <PropertyCard data={prop} client:idle />
+                    </div>
+                ))}
+            </div>
+        )}
+    </div>
+</MainLayout>
