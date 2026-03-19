@@ -1,22 +1,24 @@
 import { defineMiddleware } from "astro:middleware";
-import { supabase } from "./lib/server/supabase";
 
 export const onRequest = defineMiddleware(async (context, next) => {
-    const { url, request, redirect } = context;
+    const { url, redirect, cookies } = context;
 
-    // 1. Proteger rutas de Admin
-    if (url.pathname.startsWith("/admin") && url.pathname !== "/admin") {
-        // Aquí implementaremos la lógica de validación de sesión real
-        // Por ahora, permitimos el acceso para no bloquear el desarrollo
-        // TODO: Implementar validación de cookie/token de Supabase
+    // Buscamos el token secreto en las variables de entorno (servidor)
+    const ADMIN_TOKEN = process.env.ADMIN_SECRET_TOKEN || import.meta.env.ADMIN_SECRET_TOKEN;
 
-        // Ejemplo (comentado hasta tener auth flows):
-        /*
-        const { data: { session } } = await supabase.auth.getSession();
-        if (!session) {
-            return redirect("/admin");
+    if (url.pathname.startsWith("/admin")) {
+        const tokenInUrl = url.searchParams.get("token");
+        const hasCookie = cookies.has("admin_access");
+
+        // Comparamos contra la variable de entorno, no contra un texto fijo
+        if (tokenInUrl === ADMIN_TOKEN && ADMIN_TOKEN !== undefined) {
+            cookies.set("admin_access", "true", { path: "/", httpOnly: true });
+            return next();
         }
-        */
+
+        if (!hasCookie) {
+            return redirect("/");
+        }
     }
 
     return next();

@@ -1,3 +1,34 @@
+# 🏠 Inmobiliaria Astro 5.0 (Spec-Driven Demo)
+
+Catálogo inmobiliario de alto rendimiento desarrollado con **Astro 5.0** (SSR), **Svelte 5** y **Supabase**.
+
+🚀 **[Ver Live Demo](PON_AQUÍ_TU_URL_DE_VERCEL)**
+
+## 🛠️ Stack Tecnológico
+- **Frontend:** Astro 5.0 + Svelte 5 (Islas de interactividad).
+- **Backend-as-a-Service:** Supabase (Auth & Database).
+- **Estilos:** Tailwind CSS.
+- **Despliegue:** Vercel (Edge Functions).
+
+## 📋 Especificaciones Técnicas (Spec-Driven)
+Este proyecto sigue un flujo de desarrollo basado en especificaciones estrictas:
+1. **Seguridad:** Prohibida la exposición de `Service Role Key` en el cliente.
+2. **Integridad:** Acceso a datos protegido mediante **RLS (Row Level Security)** en Supabase.
+3. **Rendimiento:** Hidratación selectiva de componentes Svelte (`client:visible`) para JS cero por defecto.
+4. **Validación:** Esquemas de datos con **Zod** para asegurar la integridad en las Astro Actions.
+
+## 📦 Características
+- Catálogo dinámico con búsqueda filtrada.
+- Panel administrativo para gestión de stock (Protegido).
+- Renderizado en el servidor (SSR) para SEO optimizado.
+- Arquitectura limpia basada en **Railway Oriented Programming (ROP)** para manejo de errores.
+
+---
+Desarrollado por [lovelinux4ever](https://github.com/lovelinux4ever)
+
+
+
+
 # BITÁCORA DE PROYECTO (Inmobiliaria Core)
 
 ## Inventario
